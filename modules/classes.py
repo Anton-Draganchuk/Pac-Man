@@ -20,12 +20,13 @@ class Sprite(pygame.sprite.Sprite):
 
 
 class PacMan:
-    def __init__(self, screen: pygame.Surface, size: int, x_starting, y_starting, wall_sprite):
+    def __init__(self, screen: pygame.Surface, size: int, health, x_starting, y_starting, wall_sprite):
         """
         Конструктор класса персонажей PacMan
 
         :param screen: экран рисования
         :param size: размер (диаметр)
+        :param health: количество очков здоровья Пакмана
         :param x_starting: начальная координата центра по горизонтали
         :param y_starting: начальная координата центра по вертикали
         :param wall_sprite: спрайт стен лабиринта
@@ -35,6 +36,8 @@ class PacMan:
         self.screen_width = self.screen.get_width()
         self.screen_height = self.screen.get_height()
         self.size = size
+        self.health = health
+        self.is_alive = True
         self.default_speed = 50
         self.wall_sprite = wall_sprite
         self.x = x_starting
@@ -127,6 +130,11 @@ class PacMan:
         self.vx = 0
         self.vy = + self.speed
         self.orientation = 'Down'
+
+    def lose_life(self):
+        self.health -= 1
+        if self.health <= 0:
+            self.is_alive = False
 
 
 class Dot:
