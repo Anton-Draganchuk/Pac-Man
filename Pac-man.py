@@ -47,7 +47,8 @@ class Interface:
         self.screen.blit(self.Surface, (0, 0))
 
     def draw_operating_values(self):
-        pass
+        self.screen.blit(self.font.render('x = ' + str(pacman.rect.centerx) +
+                                          '  y = ' + str(pacman.rect.centery), False, WHITE), (100, 5))
 
     def draw_score(self):
         award.sum_score()
@@ -57,7 +58,8 @@ class Interface:
 class Pacman(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = image_pacman
+        self.an = 0
+        self.image = pygame.transform.rotate(image_pacman1, self.an)
         self.rect = self.image.get_rect()
         self.rect.center = 30, 650
         self.speedx = 0
@@ -73,6 +75,8 @@ class Pacman(pygame.sprite.Sprite):
         self.flag_up = 0
         self.flag_down = 0
         self.time2_turn = 20
+        self.number_picture = 1
+        self.time_image = 15
 
     def location(self):
         self.number_x = int(np.floor(self.rect.centerx / 20))
@@ -91,6 +95,7 @@ class Pacman(pygame.sprite.Sprite):
         if keystate[pygame.K_LEFT] or self.flag_left > 0:
             if map.number_map[self.number_y, self.left] != 1 and self.rect.centery % 20 == 10:
                 self.speedx = -2
+                self.an = 90
                 self.speedy = 0
                 self.flag_left = 0
             elif self.flag_left == 0:
@@ -101,6 +106,7 @@ class Pacman(pygame.sprite.Sprite):
         elif keystate[pygame.K_RIGHT] or self.flag_right > 0:
             if map.number_map[self.number_y, self.right] != 1 and self.rect.centery % 20 == 10:
                 self.speedx = 2
+                self.an = -90
                 self.speedy = 0
                 self.flag_right = 0
             elif self.flag_right == 0:
@@ -111,6 +117,7 @@ class Pacman(pygame.sprite.Sprite):
         elif keystate[pygame.K_UP] or self.flag_up > 0:
             if map.number_map[self.up, self.number_x] != 1 and self.rect.centerx % 20 == 10:
                 self.speedy = -2
+                self.an = 0
                 self.speedx = 0
                 self.flag_up = 0
             elif self.flag_up == 0:
@@ -121,12 +128,16 @@ class Pacman(pygame.sprite.Sprite):
         elif keystate[pygame.K_DOWN] or self.flag_down > 0:
             if map.number_map[self.down, self.number_x] != 1 and self.rect.centerx % 20 == 10:
                 self.speedy = 2
+                self.an = 180
                 self.speedx = 0
                 self.flag_down = 0
             elif self.flag_down == 0:
                 self.flag_down = self.time2_turn
             else:
                 self.flag_down -= 1
+
+        # Анимация пакмена
+        self.view_image()
 
         # Если пакмен доходит до препятствия, он останавливается
         if self.speedy == -2 and map.number_map[self.up, self.number_x] == 1:
@@ -141,6 +152,28 @@ class Pacman(pygame.sprite.Sprite):
         # Перемещение на значение его скорости
         self.rect.x += self.speedx
         self.rect.y += self.speedy
+
+        # Прохождение через тунель
+        if self.rect.centerx < 9:
+            self.rect.centerx = 540
+        elif self.rect.centerx > 549:
+            self.rect.centerx = 10
+
+    def view_image(self):
+        if self.speedx == 0 and self.speedy == 0:
+            self.image = pygame.transform.rotate(image_pacman1, self.an)
+        else:
+            if self.number_picture == 1:
+                self.image = pygame.transform.rotate(image_pacman1, self.an)
+                if self.time_image == 0:
+                    self.number_picture = 2
+                    self.time_image = 15
+            else:
+                self.image = pygame.transform.rotate(image_pacman2, self.an)
+                if self.time_image == 0:
+                    self.number_picture = 1
+                    self.time_image = 15
+            self.time_image -= 1
 
 
 class Map:
@@ -208,6 +241,8 @@ clock = pygame.time.Clock()
 # Загрузка всех фото и аудио файлов
 image_board = pygame.transform.scale(pygame.image.load('Board.png'), (560, 620))
 image_pacman = pygame.transform.scale(pygame.image.load('Pacman.png'), (30, 30))
+image_pacman1 = pygame.transform.scale(pygame.image.load('Pacman1.png'), (30, 30))
+image_pacman2 = pygame.transform.scale(pygame.image.load('Pacman2.png'), (30, 30))
 
 # Создание объектов классов
 interface = Interface(screen)
