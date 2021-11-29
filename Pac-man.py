@@ -92,7 +92,7 @@ class Pacman(pygame.sprite.Sprite):
 
         # Поворот с режимом залипания клавиши на колличество ходов time2_turn
         keystate = pygame.key.get_pressed()
-        if keystate[pygame.K_LEFT] or self.flag_left > 0:
+        if keystate[pygame.K_LEFT] or keystate[pygame.K_a] or self.flag_left > 0:
             if map.number_map[self.number_y, self.left] != 1 and self.rect.centery % 20 == 10:
                 self.speedx = -2
                 self.an = 90
@@ -103,7 +103,7 @@ class Pacman(pygame.sprite.Sprite):
             else:
                 self.flag_left -= 1
 
-        elif keystate[pygame.K_RIGHT] or self.flag_right > 0:
+        elif keystate[pygame.K_RIGHT] or keystate[pygame.K_d] or self.flag_right > 0:
             if map.number_map[self.number_y, self.right] != 1 and self.rect.centery % 20 == 10:
                 self.speedx = 2
                 self.an = -90
@@ -114,7 +114,7 @@ class Pacman(pygame.sprite.Sprite):
             else:
                 self.flag_right -= 1
 
-        elif keystate[pygame.K_UP] or self.flag_up > 0:
+        elif keystate[pygame.K_UP] or keystate[pygame.K_w] or self.flag_up > 0:
             if map.number_map[self.up, self.number_x] != 1 and self.rect.centerx % 20 == 10:
                 self.speedy = -2
                 self.an = 0
@@ -125,7 +125,7 @@ class Pacman(pygame.sprite.Sprite):
             else:
                 self.flag_up -= 1
 
-        elif keystate[pygame.K_DOWN] or self.flag_down > 0:
+        elif keystate[pygame.K_DOWN] or keystate[pygame.K_s] or self.flag_down > 0:
             if map.number_map[self.down, self.number_x] != 1 and self.rect.centerx % 20 == 10:
                 self.speedy = 2
                 self.an = 180
@@ -189,7 +189,7 @@ class Map:
             for i in range(31):
                 for x in range(j*interface.square_size, (j + 1)*interface.square_size):
                     for y in range(i*interface.square_size, (i + 1)*interface.square_size):
-                        if image_board.get_at((x, y)) != (0, 0, 0, 255):
+                        if image_board.get_at((x, y)) != (0, 0, 0, 0):
                             p *= 0
                 if p == 0:
                     self.number_map[i, j] = 1
@@ -240,7 +240,6 @@ clock = pygame.time.Clock()
 
 # Загрузка всех фото и аудио файлов
 image_board = pygame.transform.scale(pygame.image.load('Board.png'), (560, 620))
-image_pacman = pygame.transform.scale(pygame.image.load('Pacman.png'), (30, 30))
 image_pacman1 = pygame.transform.scale(pygame.image.load('Pacman1.png'), (30, 30))
 image_pacman2 = pygame.transform.scale(pygame.image.load('Pacman2.png'), (30, 30))
 
@@ -255,6 +254,9 @@ all_sprites.add(pacman)
 # Карта в виде массива
 map.walls()
 
+# Режим разработчика
+developer_mode = 0
+
 # Игровой цикл
 finished = False
 
@@ -267,10 +269,12 @@ while not finished:
     # Прорисовка всех частей
     screen.fill(BLACK)
     interface.draw_board()
-    # interface.draw_grid()
+    if developer_mode:
+        interface.draw_grid()
     all_sprites.draw(screen)
     award.draw()
-    # map.draw()
+    if developer_mode:
+        map.draw()
     interface.draw_score()
     interface.draw_operating_values()
 
@@ -278,6 +282,11 @@ while not finished:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             finished = True
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+            if developer_mode == 0:
+                developer_mode = 1
+            else:
+                developer_mode = 0
 
     # Восстановление массива с картой
     map.reset()
