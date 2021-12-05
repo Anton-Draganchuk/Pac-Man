@@ -292,10 +292,12 @@ class Award:
 
         if (map.number_map == 4).sum() == 0:
             for f in range(self.fruit):
-                self.screen2.blit(pygame.transform.scale(Fruit[f], (40, 40)), ((28 - 2*self.fruit + 2*f) * 20, 31 * 20))
+                self.screen2.blit(pygame.transform.scale(Fruit[f],
+                                                         (40, 40)), ((28 - 2*self.fruit + 2*f) * 20, 31 * 20))
         else:
             for f in range(self.fruit - 1):
-                self.screen2.blit(pygame.transform.scale(Fruit[f], (40, 40)), ((28 - 2*self.fruit + 2 + 2*f) * 20, 31 * 20))
+                self.screen2.blit(pygame.transform.scale(Fruit[f],
+                                                         (40, 40)), ((28 - 2*self.fruit + 2 + 2*f) * 20, 31 * 20))
 
         self.screen2.set_colorkey(BLACK)
         self.screen.blit(self.screen2, (0, 60))
