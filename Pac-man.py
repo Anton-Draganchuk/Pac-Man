@@ -250,6 +250,9 @@ class Award:
         self.factor = 1
 
     def draw_dot(self):
+        """
+        Рисует точки на экране
+        """
         self.screen2.fill(BLACK)
         for j in range(28):
             for i in range(31):
@@ -308,21 +311,12 @@ class Introduction:
         self.screen = screen
 
 
-class GhostRed(pygame.sprite.Sprite):
+class Ghost(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.image = image_ghost_red[0]
-        self.rect = self.image.get_rect()
-        self.rect.center = 280, 410
         self.speed = 1
         self.speedx = -self.speed
         self.speedy = 0
-        self.number_x = int(np.floor(self.rect.centerx / 20))
-        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
-        self.up = int(np.floor((self.rect.centery - 71) / 20))
-        self.down = int(np.floor((self.rect.centery - 49) / 20))
-        self.left = int(np.floor((self.rect.centerx - 11) / 20))
-        self.right = int(np.floor((self.rect.centerx + 11) / 20))
         self.dist_left = 0
         self.dist_right = 0
         self.dist_up = 0
@@ -344,7 +338,38 @@ class GhostRed(pygame.sprite.Sprite):
         self.dist_down = np.sqrt((self.number_x - x) ** 2 + (self.down - y) ** 2)
         self.distance = [self.dist_left, self.dist_right, self.dist_up, self.dist_down]
 
+
+class GhostRed(Ghost):
+    def __init__(self):
+        super(GhostRed, self).__init__()
+        self.image = image_ghost_red[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = 280, 410
+        self.number_x = int(np.floor(self.rect.centerx / 20))
+        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
+        self.up = int(np.floor((self.rect.centery - 71) / 20))
+        self.down = int(np.floor((self.rect.centery - 49) / 20))
+        self.left = int(np.floor((self.rect.centerx - 11) / 20))
+        self.right = int(np.floor((self.rect.centerx + 11) / 20))
+
+    def get_image(self):
+        """
+        Устанавливает изображение в зависимости от направления движения призрака
+        """
+        if self.speedx < 0:
+            self.image = image_ghost_red[0]
+        elif self.speedx > 0:
+            self.image = image_ghost_red[2]
+        elif self.speedy > 0:
+            self.image = image_ghost_red[3]
+        elif self.speedy < 0:
+            self.image = image_ghost_red[1]
+
     def set_mode(self):
+        """
+        Определяет режим движения призрака в зависимости от времени
+        Увеличивает значение параметра времени на 1
+        """
         if self.time <= 560:
             self.mode = 2
         elif self.time <= 1520:
@@ -352,8 +377,12 @@ class GhostRed(pygame.sprite.Sprite):
         else:
             self.time = 0
         self.time += 1
+        print(self.mode)
 
     def mode1(self):
+        """
+        Осуществляет движение призрака в первом режиме
+        """
         # Получаем значения вокруг призрака, с 4 сторон
         self.distance2_pacman(pacman.number_x, pacman.number_y)
 
@@ -393,6 +422,9 @@ class GhostRed(pygame.sprite.Sprite):
             self.speedx = self.speed
 
     def mode2(self):
+        """
+        Осуществляет движение призрака во втором режиме
+        """
         # Получаем значения вокруг призрака, с 4 сторон
         self.distance2_pacman(0, 35)
 
@@ -432,6 +464,9 @@ class GhostRed(pygame.sprite.Sprite):
             self.speedx = self.speed
 
     def update(self):
+        """
+        Обновленяет спрайт призрака
+        """
         # Установить режим с помощью таймера time
         self.set_mode()
 
@@ -453,14 +488,7 @@ class GhostRed(pygame.sprite.Sprite):
             self.rect.centerx = 10
 
         # Выбор картинки по направлению
-        if self.speedx < 0:
-            self.image = image_ghost_red[0]
-        elif self.speedx > 0:
-            self.image = image_ghost_red[2]
-        elif self.speedy > 0:
-            self.image = image_ghost_red[3]
-        elif self.speedy < 0:
-            self.image = image_ghost_red[1]
+        self.get_image()
 
         if self.number_x == pacman.number_x and self.number_y == pacman.number_y:
             all_sprites.remove(pacman)
