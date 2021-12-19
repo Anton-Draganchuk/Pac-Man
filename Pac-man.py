@@ -99,6 +99,17 @@ class Pacman(pygame.sprite.Sprite):
         self.an = 0
         self.image = pygame.transform.rotate(image_pacman[1], self.an)
         self.rect = self.image.get_rect()
+        self.time2_turn = 20
+        self.number_picture = 1
+        self.time_image = 15
+        self.health = 3
+
+        self.get_started()
+
+    def get_started(self):
+        """
+        Помещает Пакмена в начальное положение
+        """
         self.rect.center = 280, 530
         self.speedx = 0
         self.speedy = 0
@@ -113,9 +124,6 @@ class Pacman(pygame.sprite.Sprite):
         self.flag_right = 0
         self.flag_up = 0
         self.flag_down = 0
-        self.time2_turn = 20
-        self.number_picture = 1
-        self.time_image = 15
 
     def location(self):
         """
@@ -227,6 +235,16 @@ class Pacman(pygame.sprite.Sprite):
                     self.number_picture = 1
                     self.time_image = 15
             self.time_image -= 1
+
+    def hit(self):
+        """
+        Уменьшает количество жизней Пакмена, возвращает его в начальное положение
+        """
+        self.health -= 1
+        if self.health <= 0:
+            all_sprites.remove(pacman)
+        else:
+            self.get_started()
 
 
 class Map:
@@ -464,14 +482,7 @@ class GhostRed(Ghost):
             self.speedy = 0
             self.speedx = self.speed
 
-    def mode1(self):
-        """
-        Осуществляет движение призрака в первом режиме (преследование)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(pacman.number_x, pacman.number_y)
-
-        # Перемещение призрака
+    def move(self):
         if self.speedx > 0:
             self.distance.remove(self.dist_left)
         elif self.speedx < 0:
@@ -489,6 +500,15 @@ class GhostRed(Ghost):
         if map.number_map[self.number_y, self.right] == 1:
             self.distance.remove(self.dist_right)
 
+    def mode1(self):
+        """
+        Осуществляет движение призрака в первом режиме (преследование)
+        """
+        # Получаем значения вокруг призрака, с 4 сторон
+        self.distance2_pacman(pacman.number_x, pacman.number_y)
+
+        # Перемещение призрака
+        self.move()
         self.get_direction()
 
     def mode2(self):
@@ -499,22 +519,7 @@ class GhostRed(Ghost):
         self.distance2_pacman(0, 35)
 
         # Перемещение призрака
-        if self.speedx > 0:
-            self.distance.remove(self.dist_left)
-        elif self.speedx < 0:
-            self.distance.remove(self.dist_right)
-        elif self.speedy > 0:
-            self.distance.remove(self.dist_up)
-        elif self.speedy < 0:
-            self.distance.remove(self.dist_down)
-        if map.number_map[self.up, self.number_x] == 1:
-            self.distance.remove(self.dist_up)
-        if map.number_map[self.down, self.number_x] == 1:
-            self.distance.remove(self.dist_down)
-        if map.number_map[self.number_y, self.left] == 1:
-            self.distance.remove(self.dist_left)
-        if map.number_map[self.number_y, self.right] == 1:
-            self.distance.remove(self.dist_right)
+        self.move()
 
         self.get_direction()
 
@@ -546,7 +551,7 @@ class GhostRed(Ghost):
         self.get_image()
 
         if self.number_x == pacman.number_x and self.number_y == pacman.number_y:
-            all_sprites.remove(pacman)
+            pacman.hit()
 
 
 # Создание рабочей поверхности
