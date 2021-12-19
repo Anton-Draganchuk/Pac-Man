@@ -27,6 +27,7 @@ class Interface:
         self.square_size = int(WIDTH / 28)
         self.font = pygame.font.Font(None, 30)
         self.factor_time = 20
+        self.level = 1
 
     def draw_board(self):
         """
@@ -78,8 +79,15 @@ class Interface:
         """
         Выводит текст "Health" и здоровье Пакмена на экран
         """
-        self.screen.blit(self.font.render('Health', False, YELLOW), (100, 5))
-        self.screen.blit(self.font.render(str(pacman.health), False, WHITE), (110, 30))
+        self.screen.blit(self.font.render('Health', False, YELLOW), (130, 5))
+        self.screen.blit(self.font.render(str(pacman.health), False, WHITE), (140, 30))
+
+    def draw_level(self):
+        """
+        Выводит текст "Level" и уровень на экран
+        """
+        self.screen.blit(self.font.render('Level', False, YELLOW), (15, 5))
+        self.screen.blit(self.font.render(str(self.level), False, WHITE), (25, 30))
 
     def draw_factor(self):
         """
@@ -95,6 +103,17 @@ class Interface:
                 self.factor_time -= 1
             else:
                 self.factor_time -= 1
+
+    def new_level(self):
+        """
+        Осуществляет переход на новый уровень при отсутствии точек на экране
+        """
+        if (map.number_map == 0).sum() + (map.number_map == 4).sum() <= 56:
+            interface.level += 1
+            pacman.get_started()
+            ghost_red.get_started()
+            map.__init__(screen)
+            map.walls()
 
 
 class Pacman(pygame.sprite.Sprite):
@@ -391,7 +410,7 @@ class Ghost(pygame.sprite.Sprite):
         Класс призраков
         """
         pygame.sprite.Sprite.__init__(self)
-        self.speed = 1
+        self.get_started()
         self.speedx = -self.speed
         self.speedy = 0
         self.dist_left = 0
@@ -401,13 +420,27 @@ class Ghost(pygame.sprite.Sprite):
         self.mode = 1
         self.time = 0
         self.distance = []
+        self.x = 0
+        self.y = 0
 
+    def get_started(self):
+        """
+        Помещает призрака в начальное положение
+        """
+        self.speed = self.get_speed()
         self.number_x = 0
         self.number_y = 0
         self.up = 0
         self.down = 0
         self.left = 0
         self.right = 0
+
+    def get_speed(self):
+        """
+        Определяет скорость призрака в зависимости от уровня
+        :return: скорость призрака
+        """
+        return 1
 
     def distance2_pacman(self, x, y):
         """
@@ -495,14 +528,19 @@ class Ghost(pygame.sprite.Sprite):
                 self.mode2()
 
         # Перемещение на значение его скорости
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
+        self.x += self.speedx
+        self.y += self.speedy
+
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
 
         # Прохождение через тунель
         if self.rect.centerx < 9:
             self.rect.centerx = 540
+            self.x = 540
         elif self.rect.centerx > 549:
             self.rect.centerx = 10
+            self.x = 10
 
         # Выбор картинки по направлению
         self.get_image()
@@ -529,6 +567,8 @@ class GhostRed(Ghost):
         self.image = image_ghost_red[0]
         self.rect = self.image.get_rect()
         self.rect.center = 280, 410
+        self.x = float(self.rect.x)
+        self.y = float(self.rect.y)
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
@@ -631,8 +671,12 @@ finished = False
 
 while not finished and not game_over:
     clock.tick(FPS)
+    print(ghost_red.speedx, ghost_red.speedy)
 
     if not pause:
+        # Переход на следующий уровень
+        interface.new_level()
+
         # Обновление всех частей
         all_sprites.update()
 
@@ -652,6 +696,7 @@ while not finished and not game_over:
         interface.draw_score()
         interface.draw_highscore()
         interface.draw_health()
+        interface.draw_level()
 
     # Цикл событий
     for event in pygame.event.get():
@@ -667,6 +712,11 @@ while not finished and not game_over:
                 pause = 1
             else:
                 pause = 0
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_u:
+            for j in range(28):
+                for i in range(31):
+                    if map.number_map[i, j] == 0:
+                        map.number_map[i, j] = 3
 
     pygame.display.update()
 
