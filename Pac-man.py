@@ -440,7 +440,7 @@ class Ghost(pygame.sprite.Sprite):
         Определяет скорость призрака в зависимости от уровня
         :return: скорость призрака
         """
-        return 1
+        return 1 if interface.level < 10 else 2
 
     def distance2_pacman(self, x, y):
         """
@@ -618,6 +618,10 @@ def show_end_screen(end_screen):
     :param end_screen: экран рисования
     """
     end_screen.blit(game_over_screen, (0, 0))
+    text1 = pygame.font.Font(None, 60).render(f'You beated {interface.level - 1} levels!', False, WHITE)
+    text2 = pygame.font.Font(None, 60).render(f'Your score is {award.score}.', False, WHITE)
+    end_screen.blit(text1, (70, 540))
+    end_screen.blit(text2, (100, 640))
 
 
 # Создание рабочей поверхности
