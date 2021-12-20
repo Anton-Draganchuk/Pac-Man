@@ -28,6 +28,7 @@ class Interface:
         self.font = pygame.font.Font(None, 30)
         self.factor_time = 20
         self.level = 1
+        self.Surface = pygame.Surface((WIDTH, HEIGHT))
 
     def draw_board(self):
         """
@@ -39,7 +40,6 @@ class Interface:
         """
         Отрисовка решетки для наглядного видения поля
         """
-        self.Surface = pygame.Surface((WIDTH, HEIGHT))
         x = 0
         while x != WIDTH:
             pygame.draw.line(self.Surface, GREEN, (x, 0), (x, HEIGHT), 2)
@@ -111,7 +111,8 @@ class Interface:
         if (map.number_map == 0).sum() + (map.number_map == 4).sum() <= 56:
             self.level += 1
             pacman.get_started()
-            ghost_red.get_started()
+            for ghost in ghost_list:
+                ghost.get_started()
             map.__init__(screen)
             map.walls()
             self.activate_ghosts()
@@ -120,11 +121,11 @@ class Interface:
         """
         Определяет, должны ли призраки вступать в игру на данном уровне
         """
-        if self.level >= 5:
+        if self.level >= 3:
             ghost_blue.active = True
-        if self.level >= 15:
+        if self.level >= 6:
             ghost_orange.active = True
-        if self.level >= 20:
+        if self.level >= 10:
             ghost_pink.active = True
 
 
@@ -141,8 +142,20 @@ class Pacman(pygame.sprite.Sprite):
         self.number_picture = 1
         self.time_image = 15
         self.health = 3
-
-        self.get_started()
+        self.rect.center = 280, 530
+        self.speedx = 0
+        self.speedy = 0
+        self.speed = 2
+        self.number_x = int(np.floor(self.rect.centerx / 20))
+        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
+        self.up = int(np.floor((self.rect.centery - 71) / 20))
+        self.down = int(np.floor((self.rect.centery - 49) / 20))
+        self.left = int(np.floor((self.rect.centerx - 11) / 20))
+        self.right = int(np.floor((self.rect.centerx + 11) / 20))
+        self.flag_left = 0
+        self.flag_right = 0
+        self.flag_up = 0
+        self.flag_down = 0
 
     def get_started(self):
         """
@@ -166,7 +179,6 @@ class Pacman(pygame.sprite.Sprite):
     def location(self):
         """
         Получает значение координат Пакмена и границ его спрайта (для определения столкновения с препятствиями)
-        :return:
         """
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
@@ -411,18 +423,19 @@ class Award:
         self.screen.blit(self.screen2, (0, 60))
 
 
-class Introduction:
-    def __init__(self, screen):
-        self.screen = screen
-
-
 class Ghost(pygame.sprite.Sprite):
     def __init__(self):
         """
         Класс призраков
         """
         pygame.sprite.Sprite.__init__(self)
-        self.get_started()
+        self.speed = self.get_speed()
+        self.number_x = 0
+        self.number_y = 0
+        self.up = 0
+        self.down = 0
+        self.left = 0
+        self.right = 0
         self.speedx = -self.speed
         self.speedy = 0
         self.dist_left = 0
@@ -455,7 +468,7 @@ class Ghost(pygame.sprite.Sprite):
         Определяет скорость призрака в зависимости от уровня
         :return: скорость призрака
         """
-        return 1 if interface.level < 10 else 2
+        return 1 if interface.level < 15 else 2
 
     def distance2_pacman(self, x, y):
         """
@@ -498,6 +511,9 @@ class Ghost(pygame.sprite.Sprite):
             self.speedx = self.speed
 
     def get_distance(self):
+        """
+        Убирает из списка self.distance направления назад и в стену для последующего определения маршрута
+        """
         if self.speedx > 0:
             self.distance.remove(self.dist_left)
         elif self.speedx < 0:
@@ -801,7 +817,6 @@ class GhostBlue(Ghost):
         self.get_direction()
 
 
-
 def show_end_screen(end_screen):
     """
     Выводит экран окончания игры
@@ -923,10 +938,10 @@ while not finished and not game_over:
             else:
                 pause = 0
         if event.type == pygame.KEYDOWN and event.key == pygame.K_u:
-            for j in range(28):
-                for i in range(31):
-                    if map.number_map[i, j] == 0:
-                        map.number_map[i, j] = 3
+            for k in range(28):
+                for m in range(31):
+                    if map.number_map[m, k] in (0, 4):
+                        map.number_map[m, k] = 3
 
     pygame.display.update()
 
