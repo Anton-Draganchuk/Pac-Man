@@ -109,11 +109,23 @@ class Interface:
         Осуществляет переход на новый уровень при отсутствии точек на экране
         """
         if (map.number_map == 0).sum() + (map.number_map == 4).sum() <= 56:
-            interface.level += 1
+            self.level += 1
             pacman.get_started()
             ghost_red.get_started()
             map.__init__(screen)
             map.walls()
+            self.activate_ghosts()
+
+    def activate_ghosts(self):
+        """
+        Определяет, должны ли призраки вступать в игру на данном уровне
+        """
+        if self.level >= 5:
+            ghost_blue.active = True
+        if self.level >= 15:
+            ghost_orange.active = True
+        if self.level >= 20:
+            ghost_pink.active = True
 
 
 class Pacman(pygame.sprite.Sprite):
@@ -422,6 +434,9 @@ class Ghost(pygame.sprite.Sprite):
         self.distance = []
         self.x = 0
         self.y = 0
+        self.inactive_x = 280
+        self.inactive_y = 270
+        self.active = False
 
     def get_started(self):
         """
@@ -518,35 +533,40 @@ class Ghost(pygame.sprite.Sprite):
         Обновленяет спрайт призрака
         """
         # Установить режим с помощью таймера time
-        self.set_mode()
+        if self.active:
+            self.set_mode()
 
-        # Перемещение призрака
-        if self.rect.centerx % 20 == 10 and self.rect.centery % 20 == 10:
-            if self.mode == 1:
-                self.mode1()
-            elif self.mode == 2:
-                self.mode2()
+            # Перемещение призрака
+            if self.rect.centerx % 20 == 10 and self.rect.centery % 20 == 10:
+                if self.mode == 1:
+                    self.mode1()
+                elif self.mode == 2:
+                    self.mode2()
 
-        # Перемещение на значение его скорости
-        self.x += self.speedx
-        self.y += self.speedy
+            # Перемещение на значение его скорости
+            self.x += self.speedx
+            self.y += self.speedy
 
-        self.rect.x = int(self.x)
-        self.rect.y = int(self.y)
+            self.rect.x = int(self.x)
+            self.rect.y = int(self.y)
 
-        # Прохождение через тунель
-        if self.rect.centerx < 9:
-            self.rect.centerx = 540
-            self.x = 540
-        elif self.rect.centerx > 549:
-            self.rect.centerx = 10
-            self.x = 10
+            # Прохождение через тунель
+            if self.rect.centerx < 9:
+                self.rect.centerx = 540
+                self.x = 540
+            elif self.rect.centerx > 549:
+                self.rect.centerx = 10
+                self.x = 10
 
-        # Выбор картинки по направлению
-        self.get_image()
+            # Выбор картинки по направлению
+            self.get_image()
 
-        if self.number_x == pacman.number_x and self.number_y == pacman.number_y:
-            pacman.hit()
+            if self.number_x == pacman.number_x and self.number_y == pacman.number_y:
+                pacman.hit()
+        else:
+            # Помещает призрака в центральную ячейку
+            self.rect.centerx = self.inactive_x
+            self.rect.centery = self.inactive_y
 
     def get_image(self):
         pass
@@ -575,6 +595,7 @@ class GhostRed(Ghost):
         self.down = int(np.floor((self.rect.centery - 49) / 20))
         self.left = int(np.floor((self.rect.centerx - 11) / 20))
         self.right = int(np.floor((self.rect.centerx + 11) / 20))
+        self.active = True
 
     def get_image(self):
         """
@@ -620,7 +641,7 @@ class GhostPink(Ghost):
         super(GhostPink, self).__init__()
         self.image = image_ghost_pink[0]
         self.rect = self.image.get_rect()
-        self.rect.center = 280, 410
+        self.rect.center = 360, 410
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
         self.number_x = int(np.floor(self.rect.centerx / 20))
@@ -629,6 +650,8 @@ class GhostPink(Ghost):
         self.down = int(np.floor((self.rect.centery - 49) / 20))
         self.left = int(np.floor((self.rect.centerx - 11) / 20))
         self.right = int(np.floor((self.rect.centerx + 11) / 20))
+        self.inactive_x = 280
+        self.inactive_y = 350
 
     def get_image(self):
         """
@@ -674,7 +697,7 @@ class GhostOrange(Ghost):
         super(GhostOrange, self).__init__()
         self.image = image_ghost_orange[0]
         self.rect = self.image.get_rect()
-        self.rect.center = 280, 410
+        self.rect.center = 240, 410
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
         self.number_x = int(np.floor(self.rect.centerx / 20))
@@ -683,6 +706,8 @@ class GhostOrange(Ghost):
         self.down = int(np.floor((self.rect.centery - 49) / 20))
         self.left = int(np.floor((self.rect.centerx - 11) / 20))
         self.right = int(np.floor((self.rect.centerx + 11) / 20))
+        self.inactive_x = 240
+        self.inactive_y = 350
 
     def get_image(self):
         """
@@ -728,7 +753,7 @@ class GhostBlue(Ghost):
         super(GhostBlue, self).__init__()
         self.image = image_ghost_blue[0]
         self.rect = self.image.get_rect()
-        self.rect.center = 280, 410
+        self.rect.center = 320, 410
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
         self.number_x = int(np.floor(self.rect.centerx / 20))
@@ -737,6 +762,8 @@ class GhostBlue(Ghost):
         self.down = int(np.floor((self.rect.centery - 49) / 20))
         self.left = int(np.floor((self.rect.centerx - 11) / 20))
         self.right = int(np.floor((self.rect.centerx + 11) / 20))
+        self.inactive_x = 320
+        self.inactive_y = 350
 
     def get_image(self):
         """
@@ -826,11 +853,16 @@ game_over_screen = pygame.transform.scale(pygame.image.load('GameOver.png'), (WI
 interface = Interface(screen)
 pacman = Pacman()
 ghost_red = GhostRed()
+ghost_pink = GhostPink()
+ghost_orange = GhostOrange()
+ghost_blue = GhostBlue()
+ghost_list = [ghost_red, ghost_blue, ghost_orange, ghost_pink]
 map = Map(screen)
 award = Award(screen)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(pacman)
-all_sprites.add(ghost_red)
+for ghost in ghost_list:
+    all_sprites.add(ghost)
 
 # Файл с рекордом
 score = open('Score.txt', 'r+')
