@@ -142,12 +142,15 @@ class Pacman(pygame.sprite.Sprite):
         self.number_picture = 1
         self.time_image = 15
         self.health = 3
+        self.hit_time = 0
         self.rect.center = 280, 530
         self.speedx = 0
         self.speedy = 0
         self.speed = 2
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
+        self.number_x_last = 0
+        self.number_y_last = 0
         self.up = int(np.floor((self.rect.centery - 71) / 20))
         self.down = int(np.floor((self.rect.centery - 49) / 20))
         self.left = int(np.floor((self.rect.centerx - 11) / 20))
@@ -180,6 +183,8 @@ class Pacman(pygame.sprite.Sprite):
         """
         Получает значение координат Пакмена и границ его спрайта (для определения столкновения с препятствиями)
         """
+        self.number_x_last = self.number_x
+        self.number_y_last = self.number_y
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
@@ -288,16 +293,19 @@ class Pacman(pygame.sprite.Sprite):
 
     def hit(self):
         """
-        Уменьшает количество жизней Пакмена, возвращает его в начальное положение
+        Уменьшает количество жизней Пакмена, возвращает его в начальное положение;
+        Даёт неуязвимость на 1 секунду (чтобы один призрак не мог сразу нанести урон дважды)
         """
         global game_over
-        self.health -= 1
-        if self.health <= 0:
-            self.health = 0
-            game_over = True
-            all_sprites.remove(pacman)
-        else:
-            self.get_started()
+        if self.hit_time == 0:
+            self.health -= 1
+            self.hit_time = FPS
+            if self.health <= 0:
+                self.health = 0
+                game_over = True
+                all_sprites.remove(pacman)
+            else:
+                self.get_started()
 
 
 class Map:
@@ -463,7 +471,8 @@ class Ghost(pygame.sprite.Sprite):
         self.left = 0
         self.right = 0
 
-    def get_speed(self):
+    @staticmethod
+    def get_speed():
         """
         Определяет скорость призрака в зависимости от уровня
         :return: скорость призрака
@@ -577,8 +586,14 @@ class Ghost(pygame.sprite.Sprite):
             # Выбор картинки по направлению
             self.get_image()
 
-            if self.number_x == pacman.number_x and self.number_y == pacman.number_y:
+            if (self.number_x == pacman.number_x and self.number_y == pacman.number_y) or\
+                    (self.number_x == pacman.number_x_last and self.number_y == pacman.number_y) or\
+                    (self.number_x == pacman.number_x and self.number_y == pacman.number_y_last):
                 pacman.hit()
+
+            pacman.hit_time -= 1
+            if pacman.hit_time < 0:
+                pacman.hit_time = 0
         else:
             # Помещает призрака в центральную ячейку
             self.rect.centerx = self.inactive_x
