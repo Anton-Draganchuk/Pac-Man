@@ -440,6 +440,7 @@ class Ghost(pygame.sprite.Sprite):
         self.speed = self.get_speed()
         self.number_x = 0
         self.number_y = 0
+        self.center = (0, 0)
         self.up = 0
         self.down = 0
         self.left = 0
@@ -453,8 +454,6 @@ class Ghost(pygame.sprite.Sprite):
         self.mode = 1
         self.time = 0
         self.distance = []
-        self.x = 0
-        self.y = 0
         self.inactive_x = 280
         self.inactive_y = 270
         self.active = False
@@ -464,12 +463,20 @@ class Ghost(pygame.sprite.Sprite):
         Помещает призрака в начальное положение
         """
         self.speed = self.get_speed()
-        self.number_x = 0
-        self.number_y = 0
+        self.rect.center = self.center
         self.up = 0
         self.down = 0
         self.left = 0
         self.right = 0
+        self.speedx = -self.speed
+        self.speedy = 0
+        self.dist_left = 0
+        self.dist_right = 0
+        self.dist_up = 0
+        self.dist_down = 0
+        self.mode = 1
+        self.time = 0
+        self.distance = []
 
     @staticmethod
     def get_speed():
@@ -569,19 +576,14 @@ class Ghost(pygame.sprite.Sprite):
                     self.mode2()
 
             # Перемещение на значение его скорости
-            self.x += self.speedx
-            self.y += self.speedy
-
-            self.rect.x = int(self.x)
-            self.rect.y = int(self.y)
+            self.rect.x += self.speedx
+            self.rect.y += self.speedy
 
             # Прохождение через тунель
             if self.rect.centerx < 9:
                 self.rect.centerx = 540
-                self.x = 540
             elif self.rect.centerx > 549:
                 self.rect.centerx = 10
-                self.x = 10
 
             # Выбор картинки по направлению
             self.get_image()
@@ -617,9 +619,8 @@ class GhostRed(Ghost):
         super(GhostRed, self).__init__()
         self.image = image_ghost_red[0]
         self.rect = self.image.get_rect()
-        self.rect.center = 280, 410
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.center = (280, 410)
+        self.rect.center = self.center
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
@@ -672,9 +673,8 @@ class GhostPink(Ghost):
         super(GhostPink, self).__init__()
         self.image = image_ghost_pink[0]
         self.rect = self.image.get_rect()
-        self.rect.center = 360, 410
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.center = (360, 410)
+        self.rect.center = self.center
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
@@ -728,9 +728,8 @@ class GhostOrange(Ghost):
         super(GhostOrange, self).__init__()
         self.image = image_ghost_orange[0]
         self.rect = self.image.get_rect()
-        self.rect.center = 240, 410
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.center = (240, 410)
+        self.rect.center = self.center
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
@@ -784,9 +783,8 @@ class GhostBlue(Ghost):
         super(GhostBlue, self).__init__()
         self.image = image_ghost_blue[0]
         self.rect = self.image.get_rect()
-        self.rect.center = 320, 410
-        self.x = float(self.rect.x)
-        self.y = float(self.rect.y)
+        self.center = (320, 410)
+        self.rect.center = self.center
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
