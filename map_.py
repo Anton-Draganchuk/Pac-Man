@@ -105,11 +105,11 @@ class Award:
         else:
             self.factor = 1
 
-    def draw_fruit(self, card, Fruit):
+    def draw_fruit(self, card, fruit):
         """
         Функция рисования фруктов по определенному правилу
         :param card: Карта в виде массива
-        :param Fruit: Список из всех фруктов
+        :param fruit: Список из всех фруктов
         :return: Рисует фрукты на карте и внизу экрана
         """
         self.set_fruit(card)
@@ -117,17 +117,16 @@ class Award:
         for j in range(28):
             for i in range(31):
                 if self.fruit < 4 and card.number_map[i, j] == 4:
-                    self.screen2.blit(Fruit[self.fruit - 1], (j * 20, i * 20))
+                    self.screen2.blit(fruit[self.fruit - 1], (j * 20, i * 20))
 
         if (card.number_map == 4).sum() == 0:
             for f in range(self.fruit):
-                self.screen2.blit(pygame.transform.scale(Fruit[f], (40, 40)),
+                self.screen2.blit(pygame.transform.scale(fruit[f], (40, 40)),
                                   ((28 - 2 * self.fruit + 2 * f) * 20, 31 * 20))
         else:
             for f in range(self.fruit - 1):
-                self.screen2.blit(pygame.transform.scale(Fruit[f], (40, 40)),
+                self.screen2.blit(pygame.transform.scale(fruit[f], (40, 40)),
                                   ((28 - 2 * self.fruit + 2 + 2 * f) * 20, 31 * 20))
 
         self.screen2.set_colorkey(BLACK)
         self.screen.blit(self.screen2, (0, 60))
-
