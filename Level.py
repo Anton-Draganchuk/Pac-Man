@@ -3,7 +3,7 @@ import pygame
 from final_screen import end_screen_loop
 
 
-def circle(screen, clock, all_sprites, interface, map, score, Fruit, pacman, award):
+def circle(screen, clock, all_sprites, interface, map, score, fruit, pacman, award):
     """
     Функция игрового цикла, в котором происходит обновление всех элементов и их прорисовка
     :param screen: Основной экран на котором все рисуется
@@ -12,7 +12,7 @@ def circle(screen, clock, all_sprites, interface, map, score, Fruit, pacman, awa
     :param interface: Объект одноименного класса, отвечает за стационарные детали на экране
     :param map: Объект одноименного класса, отвечает за карту в виде массива
     :param score: Файл в котором записан рекордное колличество очков
-    :param Fruit: Список из всех картинок фруктов
+    :param fruit: Список из всех картинок фруктов
     :param pacman: Объект одноименного класса, оьвечает за основного персонажа
     :param award: Объект одноименного класса, отвечает за расстановку фруктов и очков
     :return: Игровой экран с возможностью регировать на нажатие клавиш
@@ -34,7 +34,7 @@ def circle(screen, clock, all_sprites, interface, map, score, Fruit, pacman, awa
             screen.fill(BLACK)
             interface.draw_board()
             award.draw_dot(map)
-            award.draw_fruit(map, Fruit)
+            award.draw_fruit(map, fruit)
             award.update(map, pacman)
             interface.draw_factor(award)
             all_sprites.draw(screen)

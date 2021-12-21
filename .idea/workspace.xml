@@ -9,6 +9,10 @@
       <change beforePath="$PROJECT_DIR$/Level.py" beforeDir="false" afterPath="$PROJECT_DIR$/Level.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Score.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Score.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ghost_.py" beforeDir="false" afterPath="$PROJECT_DIR$/ghost_.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/interface_.py" beforeDir="false" afterPath="$PROJECT_DIR$/interface_.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/map_.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pacman_.py" beforeDir="false" afterPath="$PROJECT_DIR$/pacman_.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Презентация.pptx" beforeDir="false" afterPath="$PROJECT_DIR$/Презентация.pptx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -35,7 +39,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/final_screen.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/pacman_.py" />
   </component>
   <component name="RunManager" selected="Python.main (1)">
     <configuration name="Pac-man" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">

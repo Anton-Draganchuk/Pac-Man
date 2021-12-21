@@ -147,5 +147,3 @@ class Pacman(pygame.sprite.Sprite):
                     self.number_picture = 1
                     self.time_image = 15
             self.time_image -= 1
-
-

@@ -64,4 +64,3 @@ class Interface:
                 self.factor_time -= 1
             else:
                 self.factor_time -= 1
-

@@ -64,14 +64,14 @@ class GhostRed(pygame.sprite.Sprite):
             self.time = 0
         self.time += 1
 
-    def mode1(self, Pacman, map):
+    def mode1(self, pacman, map):
         """
         Функция описывает первый режим
-        :param Pacman: Объект одноименного класса
+        :param pacman: Объект одноименного класса
         :param map: Объект одноименного класса, с игровым массивом
         :return: Движение призрака
         """
-        self.way(map, Pacman.number_x, Pacman.number_y)
+        self.way(map, pacman.number_x, pacman.number_y)
 
     def mode2(self, map):
         """
@@ -133,10 +133,10 @@ class GhostRed(pygame.sprite.Sprite):
                 self.speedy = 0
                 self.speedx = self.speed
 
-    def update(self, Pacman, map, award):
+    def update(self, pacman, map, award):
         """
         Функция обновления координаты объекта
-        :param Pacman: Объект одноименного класса
+        :param pacman: Объект одноименного класса
         :param map: Объект одноименного класса, игровой массив
         :param award: Объект одноименного класса
         :return: Присваевает новую координату и изменяет скорость объекта, поворот
@@ -147,7 +147,7 @@ class GhostRed(pygame.sprite.Sprite):
         # Перемещение призрака
         if self.rect.centerx % 20 == 10 and self.rect.centery % 20 == 10:
             if self.mode == 1:
-                self.mode1(Pacman, map)
+                self.mode1(pacman, map)
             elif self.mode == 2:
                 self.mode2(map)
 
@@ -246,14 +246,14 @@ class GhostPink(pygame.sprite.Sprite):
         """
         self.way(map, 2, -2)
 
-    def mode1(self, Pacman, map):
+    def mode1(self, pacman, map):
         """
         Функция описывает первый режим
-        :param Pacman: Объект одноименного класса
+        :param pacman: Объект одноименного класса
         :param map: Объект одноименного класса, с игровым массивом
         :return: Движение призрака
         """
-        self.way(map, Pacman.number_x, Pacman.number_y)
+        self.way(map, pacman.number_x, pacman.number_y)
 
     def mode2(self, map):
         """
@@ -313,11 +313,11 @@ class GhostPink(pygame.sprite.Sprite):
                 self.speedy = 0
                 self.speedx = self.speed
 
-    def update(self, Pacman, Map, award):
+    def update(self, pacman, map, award):
         """
         Функция обновления координаты объекта
-        :param Pacman: Объект одноименного класса
-        :param Map: Объект одноименного класса, игровой массив
+        :param pacman: Объект одноименного класса
+        :param map: Объект одноименного класса, игровой массив
         :param award: Объект одноименного класса
         :return: Присваевает новую координату и изменяет скорость объекта, поворот
         """
@@ -327,11 +327,11 @@ class GhostPink(pygame.sprite.Sprite):
         # Перемещение призрака
         if self.rect.centerx % 20 == 10 and self.rect.centery % 20 == 10:
             if self.mode == 0:
-                self.mode0(Map)
+                self.mode0(map)
             elif self.mode == 1:
-                self.mode1(Pacman, Map)
+                self.mode1(pacman, map)
             elif self.mode == 2:
-                self.mode2(Map)
+                self.mode2(map)
 
         # Перемещение на значение его скорости
         self.rect.x += self.speedx
@@ -428,14 +428,14 @@ class GhostBlue(pygame.sprite.Sprite):
         """
         self.way(map, 2, -2)
 
-    def mode1(self, Pacman, map):
+    def mode1(self, pacman, map):
         """
         Функция описывает первый режим
-        :param Pacman: Объект одноименного класса
+        :param pacman: Объект одноименного класса
         :param map: Объект одноименного класса, с игровым массивом
         :return: Движение призрака
         """
-        self.way(map, Pacman.number_x, Pacman.number_y)
+        self.way(map, pacman.number_x, pacman.number_y)
 
     def mode2(self, map):
         """
@@ -495,11 +495,11 @@ class GhostBlue(pygame.sprite.Sprite):
                 self.speedy = 0
                 self.speedx = self.speed
 
-    def update(self, Pacman, Map, award):
+    def update(self, pacman, map, award):
         """
         Функция обновления координаты объекта
-        :param Pacman: Объект одноименного класса
-        :param Map: Объект одноименного класса, игровой массив
+        :param pacman: Объект одноименного класса
+        :param map: Объект одноименного класса, игровой массив
         :param award: Объект одноименного класса
         :return: Присваевает новую координату и изменяет скорость объекта, поворот
         """
@@ -509,11 +509,11 @@ class GhostBlue(pygame.sprite.Sprite):
         # Перемещение призрака
         if self.rect.centerx % 20 == 10 and self.rect.centery % 20 == 10:
             if self.mode == 0:
-                self.mode0(Map)
+                self.mode0(map)
             elif self.mode == 1:
-                self.mode1(Pacman, Map)
+                self.mode1(pacman, map)
             elif self.mode == 2:
-                self.mode2(Map)
+                self.mode2(map)
 
         # Перемещение на значение его скорости
         self.rect.x += self.speedx
@@ -534,4 +534,3 @@ class GhostBlue(pygame.sprite.Sprite):
             self.image = self.picture[3]
         elif self.speedy < 0:
             self.image = self.picture[1]
-
