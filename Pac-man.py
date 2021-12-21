@@ -16,30 +16,27 @@ HEIGHT = 720
 
 
 class Interface:
-    def __init__(self, interface_screen):
-        """
-        Класс игрового окна
-        :param interface_screen: экран рисования окна
-        """
-        self.screen = interface_screen
+    def __init__(self, screen):
+        self.screen = screen
         self.board_x = 0
         self.board_y = 60
         self.square_size = int(WIDTH / 28)
         self.font = pygame.font.Font(None, 30)
         self.factor_time = 20
-        self.level = 1
-        self.Surface = pygame.Surface((WIDTH, HEIGHT))
 
     def draw_board(self):
         """
         Отрисовка игровой доски
+        :return: Игровая доска
         """
         self.screen.blit(image_board, (self.board_x, self.board_y))
 
     def draw_grid(self):
         """
         Отрисовка решетки для наглядного видения поля
+        :return: Игровая решетка
         """
+        self.Surface = pygame.Surface((WIDTH, HEIGHT))
         x = 0
         while x != WIDTH:
             pygame.draw.line(self.Surface, GREEN, (x, 0), (x, HEIGHT), 2)
@@ -56,9 +53,6 @@ class Interface:
         self.screen.blit(self.font.render('None', False, WHITE), (20, 5))
 
     def draw_highscore(self):
-        """
-        Выводит текст "High score" и значение рекорда на экран
-        """
         global score
         self.screen.blit(self.font.render('High score', False, YELLOW), (400, 5))
         if int(score.read()) < award.score:
@@ -69,30 +63,10 @@ class Interface:
         score.seek(0)
 
     def draw_score(self):
-        """
-        Выводит текст "Score" и количество очков на экран
-        """
         self.screen.blit(self.font.render('Score', False, YELLOW), (255, 5))
         self.screen.blit(self.font.render(str(award.score), False, WHITE), (265, 30))
 
-    def draw_health(self):
-        """
-        Выводит текст "Health" и здоровье Пакмена на экран
-        """
-        self.screen.blit(self.font.render('Health', False, YELLOW), (130, 5))
-        self.screen.blit(self.font.render(str(pacman.health), False, WHITE), (140, 30))
-
-    def draw_level(self):
-        """
-        Выводит текст "Level" и уровень на экран
-        """
-        self.screen.blit(self.font.render('Level', False, YELLOW), (15, 5))
-        self.screen.blit(self.font.render(str(self.level), False, WHITE), (25, 30))
-
     def draw_factor(self):
-        """
-        Выводит надпись "X10" на экран, при необходимости осуществляет её мигание
-        """
         if award.fruit_time > 120:
             self.screen.blit(pygame.font.Font(None, 40).render('X 10', False, YELLOW), (255, 400))
         elif award.fruit_time > 0:
@@ -104,87 +78,32 @@ class Interface:
             else:
                 self.factor_time -= 1
 
-    def new_level(self):
-        """
-        Осуществляет переход на новый уровень при отсутствии точек на экране
-        """
-        if (map.number_map == 0).sum() + (map.number_map == 4).sum() <= 56:
-            self.level += 1
-            pacman.get_started()
-            for ghost in ghost_list:
-                ghost.get_started()
-            map.__init__(screen)
-            map.walls()
-            self.activate_ghosts()
-
-    def activate_ghosts(self):
-        """
-        Определяет, должны ли призраки вступать в игру на данном уровне
-        """
-        if self.level >= 3:
-            ghost_blue.active = True
-        if self.level >= 6:
-            ghost_orange.active = True
-        if self.level >= 10:
-            ghost_pink.active = True
-
 
 class Pacman(pygame.sprite.Sprite):
     def __init__(self):
-        """
-        Класс Пакмена
-        """
         pygame.sprite.Sprite.__init__(self)
         self.an = 0
         self.image = pygame.transform.rotate(image_pacman[1], self.an)
         self.rect = self.image.get_rect()
+        self.rect.center = 280, 530
+        self.speedx = 0
+        self.speedy = 0
+        self.speed = 2
+        self.number_x = int(np.floor(self.rect.centerx / 20))
+        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
+        self.up = int(np.floor((self.rect.centery - 71) / 20))
+        self.down = int(np.floor((self.rect.centery - 49) / 20))
+        self.left = int(np.floor((self.rect.centerx - 11) / 20))
+        self.right = int(np.floor((self.rect.centerx + 11) / 20))
+        self.flag_left = 0
+        self.flag_right = 0
+        self.flag_up = 0
+        self.flag_down = 0
         self.time2_turn = 20
         self.number_picture = 1
         self.time_image = 15
-        self.health = 3
-        self.hit_time = 0
-        self.rect.center = 280, 530
-        self.speedx = 0
-        self.speedy = 0
-        self.speed = 2
-        self.number_x = int(np.floor(self.rect.centerx / 20))
-        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
-        self.number_x_last = 0
-        self.number_y_last = 0
-        self.up = int(np.floor((self.rect.centery - 71) / 20))
-        self.down = int(np.floor((self.rect.centery - 49) / 20))
-        self.left = int(np.floor((self.rect.centerx - 11) / 20))
-        self.right = int(np.floor((self.rect.centerx + 11) / 20))
-        self.flag_left = 0
-        self.flag_right = 0
-        self.flag_up = 0
-        self.flag_down = 0
-
-    def get_started(self):
-        """
-        Помещает Пакмена в начальное положение
-        """
-        self.rect.center = 280, 530
-        self.speedx = 0
-        self.speedy = 0
-        self.speed = 2
-        self.number_x = int(np.floor(self.rect.centerx / 20))
-        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
-        self.up = int(np.floor((self.rect.centery - 71) / 20))
-        self.down = int(np.floor((self.rect.centery - 49) / 20))
-        self.left = int(np.floor((self.rect.centerx - 11) / 20))
-        self.right = int(np.floor((self.rect.centerx + 11) / 20))
-        self.flag_left = 0
-        self.flag_right = 0
-        self.flag_up = 0
-        self.flag_down = 0
 
     def location(self):
-        """
-        Получает значение координат Пакмена и границ его спрайта (для определения столкновения с препятствиями)
-        """
-        self.number_x_last = self.number_x
-        self.number_y_last = self.number_y
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
@@ -193,15 +112,12 @@ class Pacman(pygame.sprite.Sprite):
         self.right = int(np.floor((self.rect.centerx + 11) / 20))
 
     def update(self):
-        """
-        Осуществляет движение Пакмена и обновляет его спрайт
-        """
         # Получаем значения вокруг пакмена, с 4 сторон
         self.location()
 
         # Поворот с режимом залипания клавиши на колличество ходов time2_turn
-        keystate = pygame.key.get_pressed()
         # Поворот налево
+        keystate = pygame.key.get_pressed()
         if keystate[pygame.K_LEFT] or keystate[pygame.K_a] or self.flag_left > 0:
             if map.number_map[self.number_y, self.left] != 1 and self.rect.centery % 20 == 10:
                 self.speedx = -self.speed
@@ -273,9 +189,6 @@ class Pacman(pygame.sprite.Sprite):
             self.rect.centerx = 10
 
     def view_image(self):
-        """
-        Определяет, какое изображение Пакмена должно показываться на данный момент, осуществляет анимацию Пакмена
-        """
         if self.speedx == 0 and self.speedy == 0:
             self.image = pygame.transform.rotate(image_pacman[1], self.an)
         else:
@@ -291,38 +204,15 @@ class Pacman(pygame.sprite.Sprite):
                     self.time_image = 15
             self.time_image -= 1
 
-    def hit(self):
-        """
-        Уменьшает количество жизней Пакмена, возвращает его в начальное положение;
-        Даёт неуязвимость на 1 секунду (чтобы один призрак не мог сразу нанести урон дважды)
-        """
-        global game_over
-        if self.hit_time == 0:
-            self.health -= 1
-            self.hit_time = FPS
-            if self.health <= 0:
-                self.health = 0
-                game_over = True
-                all_sprites.remove(pacman)
-            else:
-                self.get_started()
-
 
 class Map:
-    def __init__(self, map_screen):
-        """
-        Класс игровой карты
-        :param map_screen: экран рисования карты
-        """
+    def __init__(self, screen):
         self.number_map = np.zeros((33, 28), dtype=np.int64)
         self.font = pygame.font.Font(None, 20)
         self.Screen2 = pygame.Surface((560, 660))
-        self.screen = map_screen
+        self.screen = screen
 
     def walls(self):
-        """
-        Определяет расположение стен и начального положения Пакмена на карте
-        """
         p = 1
         for j in range(28):
             for i in range(31):
@@ -341,9 +231,6 @@ class Map:
         self.number_map[pacman.number_y, pacman.number_x - 1] = 3
 
     def draw(self):
-        """
-        Выводит на экран значения параметра number_map в каждой точке карты (для режима разработчика)
-        """
         self.Screen2.fill(BLACK)
         for j in range(28):
             for i in range(33):
@@ -353,12 +240,8 @@ class Map:
 
 
 class Award:
-    def __init__(self, award_screen):
-        """
-        Класс менеджера рисования целей (точек и фруктов)
-        :param award_screen: экран рисования точек и фруктов
-        """
-        self.screen = award_screen
+    def __init__(self, screen):
+        self.screen = screen
         self.score = 0
         self.screen2 = pygame.Surface((560, 660))
         self.time = 600
@@ -367,9 +250,6 @@ class Award:
         self.factor = 1
 
     def draw_dot(self):
-        """
-        Рисует точки на экране
-        """
         self.screen2.fill(BLACK)
         for j in range(28):
             for i in range(31):
@@ -377,9 +257,7 @@ class Award:
                     pygame.draw.rect(self.screen2, PINK, [j * 20 + 7, i * 20 + 7, 6, 6])
 
     def set_fruit(self):
-        """
-        Добавляет фрукт на карту в случайном месте, если других фруктов нет
-        """
+        global Fruit
         i, j = 0, 0
         if self.time == 0 and (map.number_map == 4).sum() == 0:
             while map.number_map[i, j] != 0 and self.fruit < 3:
@@ -391,9 +269,6 @@ class Award:
             self.time -= 1
 
     def update(self):
-        """
-        Осуществляет съедение точек и фруктов, увеличивает количество очков
-        """
         if map.number_map[pacman.number_y, pacman.number_x] == 0:
             self.score += 10 * self.factor
         elif map.number_map[pacman.number_y, pacman.number_x] == 4:
@@ -408,9 +283,6 @@ class Award:
             self.factor = 1
 
     def draw_fruit(self):
-        """
-        Добавляет фрукт на карту при необходимости, рисует все фрукты на экране
-        """
         self.set_fruit()
 
         for j in range(28):
@@ -420,33 +292,35 @@ class Award:
 
         if (map.number_map == 4).sum() == 0:
             for f in range(self.fruit):
-                self.screen2.blit(pygame.transform.scale(Fruit[f],
-                                                         (40, 40)), ((28 - 2*self.fruit + 2*f) * 20, 31 * 20))
+                self.screen2.blit(pygame.transform.scale(Fruit[f], (40, 40)), ((28 - 2*self.fruit + 2*f) * 20, 31 * 20))
         else:
             for f in range(self.fruit - 1):
-                self.screen2.blit(pygame.transform.scale(Fruit[f],
-                                                         (40, 40)), ((28 - 2*self.fruit + 2 + 2*f) * 20, 31 * 20))
+                self.screen2.blit(pygame.transform.scale(Fruit[f], (40, 40)), ((28 - 2*self.fruit + 2 + 2*f) * 20, 31 * 20))
 
         self.screen2.set_colorkey(BLACK)
         self.screen.blit(self.screen2, (0, 60))
 
 
-class Ghost(pygame.sprite.Sprite):
+class Introduction:
+    def __init__(self, screen):
+        self.screen = screen
+
+
+class GhostRed(pygame.sprite.Sprite):
     def __init__(self):
-        """
-        Класс призраков
-        """
         pygame.sprite.Sprite.__init__(self)
-        self.speed = self.get_speed()
-        self.number_x = 0
-        self.number_y = 0
-        self.center = (0, 0)
-        self.up = 0
-        self.down = 0
-        self.left = 0
-        self.right = 0
+        self.image = image_ghost_red[0]
+        self.rect = self.image.get_rect()
+        self.rect.center = 280, 410
+        self.speed = 1
         self.speedx = -self.speed
         self.speedy = 0
+        self.number_x = int(np.floor(self.rect.centerx / 20))
+        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
+        self.up = int(np.floor((self.rect.centery - 71) / 20))
+        self.down = int(np.floor((self.rect.centery - 49) / 20))
+        self.left = int(np.floor((self.rect.centerx - 11) / 20))
+        self.right = int(np.floor((self.rect.centerx + 11) / 20))
         self.dist_left = 0
         self.dist_right = 0
         self.dist_up = 0
@@ -454,44 +328,8 @@ class Ghost(pygame.sprite.Sprite):
         self.mode = 1
         self.time = 0
         self.distance = []
-        self.inactive_x = 280
-        self.inactive_y = 270
-        self.active = False
-
-    def get_started(self):
-        """
-        Помещает призрака в начальное положение
-        """
-        self.speed = self.get_speed()
-        self.rect.center = self.center
-        self.up = 0
-        self.down = 0
-        self.left = 0
-        self.right = 0
-        self.speedx = -self.speed
-        self.speedy = 0
-        self.dist_left = 0
-        self.dist_right = 0
-        self.dist_up = 0
-        self.dist_down = 0
-        self.mode = 1
-        self.time = 0
-        self.distance = []
-
-    @staticmethod
-    def get_speed():
-        """
-        Определяет скорость призрака в зависимости от уровня
-        :return: скорость призрака
-        """
-        return 1 if interface.level < 15 else 2
 
     def distance2_pacman(self, x, y):
-        """
-        Определяет расстояние от призрака до Пакмена и до краёв карты
-        :param x: координата Пакмена по горизонтали
-        :param y: координата Пакмена по вертикали
-        """
         self.number_x = int(np.floor(self.rect.centerx / 20))
         self.number_y = int(np.floor((self.rect.centery - 60) / 20))
         self.up = int(np.floor((self.rect.centery - 71) / 20))
@@ -504,32 +342,20 @@ class Ghost(pygame.sprite.Sprite):
         self.dist_down = np.sqrt((self.number_x - x) ** 2 + (self.down - y) ** 2)
         self.distance = [self.dist_left, self.dist_right, self.dist_up, self.dist_down]
 
-    def get_direction(self):
-        """
-        Определяет направление движения в зависимости от расстояния до Пакмена и краёв карты;
-        Устанавливает соответствующее значение скорости призрака по вертикали и горизонтали
-        """
-        if self.dist_up <= min(self.distance) and \
-                self.speedy <= 0 and map.number_map[self.up, self.number_x] != 1:
-            self.speedy = - self.speed
-            self.speedx = 0
-        elif self.dist_down <= min(self.distance) and \
-                self.speedy >= 0 and map.number_map[self.down, self.number_x] != 1:
-            self.speedy = self.speed
-            self.speedx = 0
-        elif self.dist_left <= min(self.distance) and \
-                self.speedx <= 0 and map.number_map[self.number_y, self.left] != 1:
-            self.speedy = 0
-            self.speedx = - self.speed
-        elif self.dist_right <= min(self.distance) and \
-                self.speedx >= 0 and map.number_map[self.number_y, self.right] != 1:
-            self.speedy = 0
-            self.speedx = self.speed
+    def set_mode(self):
+        if self.time <= 560:
+            self.mode = 2
+        elif self.time <= 1520:
+            self.mode = 1
+        else:
+            self.time = 0
+        self.time += 1
 
-    def get_distance(self):
-        """
-        Убирает из списка self.distance направления назад и в стену для последующего определения маршрута
-        """
+    def mode1(self):
+        # Получаем значения вокруг призрака, с 4 сторон
+        self.distance2_pacman(pacman.number_x, pacman.number_y)
+
+        # Перемещение призрака
         if self.speedx > 0:
             self.distance.remove(self.dist_left)
         elif self.speedx < 0:
@@ -547,92 +373,84 @@ class Ghost(pygame.sprite.Sprite):
         if map.number_map[self.number_y, self.right] == 1:
             self.distance.remove(self.dist_right)
 
-    def set_mode(self):
-        """
-        Определяет режим движения призрака в зависимости от времени
-        Увеличивает значение параметра времени на 1
-        """
-        if self.time <= 560:
-            self.mode = 2
-        elif self.time <= 1520:
-            self.mode = 1
-        else:
-            self.time = 0
-        self.time += 1
-
-    def update(self):
-        """
-        Обновленяет спрайт призрака
-        """
-        # Установить режим с помощью таймера time
-        if self.active:
-            self.set_mode()
-
-            # Перемещение призрака
-            if self.rect.centerx % 20 == 10 and self.rect.centery % 20 == 10:
-                if self.mode == 1:
-                    self.mode1()
-                elif self.mode == 2:
-                    self.mode2()
-
-            # Перемещение на значение его скорости
-            self.rect.x += self.speedx
-            self.rect.y += self.speedy
-
-            # Прохождение через тунель
-            if self.rect.centerx < 9:
-                self.rect.centerx = 540
-            elif self.rect.centerx > 549:
-                self.rect.centerx = 10
-
-            # Выбор картинки по направлению
-            self.get_image()
-
-            if (self.number_x == pacman.number_x and self.number_y == pacman.number_y) or\
-                    (self.number_x == pacman.number_x_last and self.number_y == pacman.number_y) or\
-                    (self.number_x == pacman.number_x and self.number_y == pacman.number_y_last):
-                pacman.hit()
-
-            pacman.hit_time -= 1
-            if pacman.hit_time < 0:
-                pacman.hit_time = 0
-        else:
-            # Помещает призрака в центральную ячейку
-            self.rect.centerx = self.inactive_x
-            self.rect.centery = self.inactive_y
-
-    def get_image(self):
-        pass
-
-    def mode1(self):
-        pass
+        if self.dist_up <= min(self.distance) and \
+                self.speedy <= 0 and map.number_map[self.up, self.number_x] != 1:
+            self.speedy = - self.speed
+            self.speedx = 0
+        elif self.dist_down <= min(self.distance) and \
+                self.speedy >= 0 and map.number_map[self.down, self.number_x] != 1:
+            self.speedy = self.speed
+            self.speedx = 0
+        elif self.dist_left <= min(self.distance) and \
+                self.speedx <= 0 and map.number_map[self.number_y, self.left] != 1:
+            self.speedy = 0
+            self.speedx = - self.speed
+        elif self.dist_right <= min(self.distance) and \
+                self.speedx >= 0 and map.number_map[self.number_y, self.right] != 1:
+            self.speedy = 0
+            self.speedx = self.speed
 
     def mode2(self):
-        pass
+        # Получаем значения вокруг призрака, с 4 сторон
+        self.distance2_pacman(0, 35)
 
+        # Перемещение призрака
+        if self.speedx > 0:
+            self.distance.remove(self.dist_left)
+        elif self.speedx < 0:
+            self.distance.remove(self.dist_right)
+        elif self.speedy > 0:
+            self.distance.remove(self.dist_up)
+        elif self.speedy < 0:
+            self.distance.remove(self.dist_down)
+        if map.number_map[self.up, self.number_x] == 1:
+            self.distance.remove(self.dist_up)
+        if map.number_map[self.down, self.number_x] == 1:
+            self.distance.remove(self.dist_down)
+        if map.number_map[self.number_y, self.left] == 1:
+            self.distance.remove(self.dist_left)
+        if map.number_map[self.number_y, self.right] == 1:
+            self.distance.remove(self.dist_right)
 
-class GhostRed(Ghost):
-    def __init__(self):
-        """
-        Класс красных призраков
-        """
-        super(GhostRed, self).__init__()
-        self.image = image_ghost_red[0]
-        self.rect = self.image.get_rect()
-        self.center = (280, 410)
-        self.rect.center = self.center
-        self.number_x = int(np.floor(self.rect.centerx / 20))
-        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
-        self.up = int(np.floor((self.rect.centery - 71) / 20))
-        self.down = int(np.floor((self.rect.centery - 49) / 20))
-        self.left = int(np.floor((self.rect.centerx - 11) / 20))
-        self.right = int(np.floor((self.rect.centerx + 11) / 20))
-        self.active = True
+        if self.dist_up <= min(self.distance) and \
+                self.speedy <= 0 and map.number_map[self.up, self.number_x] != 1:
+            self.speedy = - self.speed
+            self.speedx = 0
+        elif self.dist_down <= min(self.distance) and \
+                self.speedy >= 0 and map.number_map[self.down, self.number_x] != 1:
+            self.speedy = self.speed
+            self.speedx = 0
+        elif self.dist_left <= min(self.distance) and \
+                self.speedx <= 0 and map.number_map[self.number_y, self.left] != 1:
+            self.speedy = 0
+            self.speedx = - self.speed
+        elif self.dist_right <= min(self.distance) and \
+                self.speedx >= 0 and map.number_map[self.number_y, self.right] != 1:
+            self.speedy = 0
+            self.speedx = self.speed
 
-    def get_image(self):
-        """
-        Устанавливает изображение в зависимости от направления движения призрака
-        """
+    def update(self):
+        # Установить режим с помощью таймера time
+        self.set_mode()
+
+        # Перемещение призрака
+        if self.rect.centerx % 20 == 10 and self.rect.centery % 20 == 10:
+            if self.mode == 1:
+                self.mode1()
+            elif self.mode == 2:
+                self.mode2()
+
+        # Перемещение на значение его скорости
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+
+        # Прохождение через тунель
+        if self.rect.centerx < 9:
+            self.rect.centerx = 540
+        elif self.rect.centerx > 549:
+            self.rect.centerx = 10
+
+        # Выбор картинки по направлению
         if self.speedx < 0:
             self.image = image_ghost_red[0]
         elif self.speedx > 0:
@@ -642,204 +460,8 @@ class GhostRed(Ghost):
         elif self.speedy < 0:
             self.image = image_ghost_red[1]
 
-    def mode1(self):
-        """
-        Осуществляет движение призрака в первом режиме (преследование)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(pacman.number_x, pacman.number_y)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-    def mode2(self):
-        """
-        Осуществляет движение призрака во втором режиме (движение к левому нижнему углу)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(0, 35)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-
-class GhostPink(Ghost):
-    def __init__(self):
-        """
-        Класс розовых призраков
-        """
-        super(GhostPink, self).__init__()
-        self.image = image_ghost_pink[0]
-        self.rect = self.image.get_rect()
-        self.center = (360, 410)
-        self.rect.center = self.center
-        self.number_x = int(np.floor(self.rect.centerx / 20))
-        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
-        self.up = int(np.floor((self.rect.centery - 71) / 20))
-        self.down = int(np.floor((self.rect.centery - 49) / 20))
-        self.left = int(np.floor((self.rect.centerx - 11) / 20))
-        self.right = int(np.floor((self.rect.centerx + 11) / 20))
-        self.inactive_x = 280
-        self.inactive_y = 350
-
-    def get_image(self):
-        """
-        Устанавливает изображение в зависимости от направления движения призрака
-        """
-        if self.speedx < 0:
-            self.image = image_ghost_pink[0]
-        elif self.speedx > 0:
-            self.image = image_ghost_pink[2]
-        elif self.speedy > 0:
-            self.image = image_ghost_pink[3]
-        elif self.speedy < 0:
-            self.image = image_ghost_pink[1]
-
-    def mode1(self):
-        """
-        Осуществляет движение призрака в первом режиме (преследование)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(pacman.number_x, pacman.number_y)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-    def mode2(self):
-        """
-        Осуществляет движение призрака во втором режиме (движение к левому нижнему углу)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(0, 0)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-
-class GhostOrange(Ghost):
-    def __init__(self):
-        """
-        Класс розовых призраков
-        """
-        super(GhostOrange, self).__init__()
-        self.image = image_ghost_orange[0]
-        self.rect = self.image.get_rect()
-        self.center = (240, 410)
-        self.rect.center = self.center
-        self.number_x = int(np.floor(self.rect.centerx / 20))
-        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
-        self.up = int(np.floor((self.rect.centery - 71) / 20))
-        self.down = int(np.floor((self.rect.centery - 49) / 20))
-        self.left = int(np.floor((self.rect.centerx - 11) / 20))
-        self.right = int(np.floor((self.rect.centerx + 11) / 20))
-        self.inactive_x = 240
-        self.inactive_y = 350
-
-    def get_image(self):
-        """
-        Устанавливает изображение в зависимости от направления движения призрака
-        """
-        if self.speedx < 0:
-            self.image = image_ghost_orange[0]
-        elif self.speedx > 0:
-            self.image = image_ghost_orange[2]
-        elif self.speedy > 0:
-            self.image = image_ghost_orange[3]
-        elif self.speedy < 0:
-            self.image = image_ghost_orange[1]
-
-    def mode1(self):
-        """
-        Осуществляет движение призрака в первом режиме (преследование)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(pacman.number_x, pacman.number_y)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-    def mode2(self):
-        """
-        Осуществляет движение призрака во втором режиме (движение к левому нижнему углу)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(31, 0)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-
-class GhostBlue(Ghost):
-    def __init__(self):
-        """
-        Класс розовых призраков
-        """
-        super(GhostBlue, self).__init__()
-        self.image = image_ghost_blue[0]
-        self.rect = self.image.get_rect()
-        self.center = (320, 410)
-        self.rect.center = self.center
-        self.number_x = int(np.floor(self.rect.centerx / 20))
-        self.number_y = int(np.floor((self.rect.centery - 60) / 20))
-        self.up = int(np.floor((self.rect.centery - 71) / 20))
-        self.down = int(np.floor((self.rect.centery - 49) / 20))
-        self.left = int(np.floor((self.rect.centerx - 11) / 20))
-        self.right = int(np.floor((self.rect.centerx + 11) / 20))
-        self.inactive_x = 320
-        self.inactive_y = 350
-
-    def get_image(self):
-        """
-        Устанавливает изображение в зависимости от направления движения призрака
-        """
-        if self.speedx < 0:
-            self.image = image_ghost_blue[0]
-        elif self.speedx > 0:
-            self.image = image_ghost_blue[2]
-        elif self.speedy > 0:
-            self.image = image_ghost_blue[3]
-        elif self.speedy < 0:
-            self.image = image_ghost_blue[1]
-
-    def mode1(self):
-        """
-        Осуществляет движение призрака в первом режиме (преследование)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(pacman.number_x, pacman.number_y)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-    def mode2(self):
-        """
-        Осуществляет движение призрака во втором режиме (движение к левому нижнему углу)
-        """
-        # Получаем значения вокруг призрака, с 4 сторон
-        self.distance2_pacman(31, 35)
-
-        # Перемещение призрака
-        self.get_distance()
-        self.get_direction()
-
-
-def show_end_screen(end_screen):
-    """
-    Выводит экран окончания игры
-    :param end_screen: экран рисования
-    """
-    end_screen.blit(game_over_screen, (0, 0))
-    text1 = pygame.font.Font(None, 60).render(f'You completed {interface.level - 1} levels!', False, WHITE)
-    text2 = pygame.font.Font(None, 60).render(f'Your score is {award.score}.', False, WHITE)
-    end_screen.blit(text1, (70, 540))
-    end_screen.blit(text2, (100, 640))
+        if self.number_x == pacman.number_x and self.number_y == pacman.number_y:
+            all_sprites.remove(pacman)
 
 
 # Создание рабочей поверхности
@@ -857,40 +479,21 @@ image_ghost_red = [pygame.transform.scale(pygame.image.load('Red Ghost/Left.png'
                    pygame.transform.scale(pygame.image.load('Red Ghost/Up.png'), (40, 40)),
                    pygame.transform.scale(pygame.image.load('Red Ghost/Right.png'), (40, 40)),
                    pygame.transform.scale(pygame.image.load('Red Ghost/Down.png'), (40, 40))]
-image_ghost_blue = [pygame.transform.scale(pygame.image.load('Blue Ghost/Left.png'), (40, 40)),
-                    pygame.transform.scale(pygame.image.load('Blue Ghost/Up.png'), (40, 40)),
-                    pygame.transform.scale(pygame.image.load('Blue Ghost/Right.png'), (40, 40)),
-                    pygame.transform.scale(pygame.image.load('Blue Ghost/Down.png'), (40, 40))]
-image_ghost_orange = [pygame.transform.scale(pygame.image.load('Orange Ghost/Left.png'), (40, 40)),
-                      pygame.transform.scale(pygame.image.load('Orange Ghost/Up.png'), (40, 40)),
-                      pygame.transform.scale(pygame.image.load('Orange Ghost/Right.png'), (40, 40)),
-                      pygame.transform.scale(pygame.image.load('Orange Ghost/Down.png'), (40, 40))]
-image_ghost_pink = [pygame.transform.scale(pygame.image.load('Pink Ghost/Left.png'), (40, 40)),
-                    pygame.transform.scale(pygame.image.load('Pink Ghost/Up.png'), (40, 40)),
-                    pygame.transform.scale(pygame.image.load('Pink Ghost/Right.png'), (40, 40)),
-                    pygame.transform.scale(pygame.image.load('Pink Ghost/Down.png'), (40, 40))]
 
 Fruit = [pygame.transform.scale(pygame.image.load('Fruit/Cherry.png'), (20, 20)),
          pygame.transform.scale(pygame.image.load('Fruit/Strawberry.png'), (20, 20)),
          pygame.transform.scale(pygame.image.load('Fruit/Apple.png'), (20, 20)),
          pygame.transform.scale(pygame.image.load('Fruit/Peach.png'), (20, 20))]
 
-game_over_screen = pygame.transform.scale(pygame.image.load('GameOver.png'), (WIDTH, HEIGHT))
-
 # Создание объектов классов
 interface = Interface(screen)
 pacman = Pacman()
 ghost_red = GhostRed()
-ghost_pink = GhostPink()
-ghost_orange = GhostOrange()
-ghost_blue = GhostBlue()
-ghost_list = [ghost_red, ghost_blue, ghost_orange, ghost_pink]
 map = Map(screen)
 award = Award(screen)
 all_sprites = pygame.sprite.Group()
 all_sprites.add(pacman)
-for ghost in ghost_list:
-    all_sprites.add(ghost)
+all_sprites.add(ghost_red)
 
 # Файл с рекордом
 score = open('Score.txt', 'r+')
@@ -905,16 +508,12 @@ developer_mode = 0
 pause = 0
 
 # Игровой цикл
-game_over = False
 finished = False
 
-while not finished and not game_over:
+while not finished:
     clock.tick(FPS)
 
     if not pause:
-        # Переход на следующий уровень
-        interface.new_level()
-
         # Обновление всех частей
         all_sprites.update()
 
@@ -928,13 +527,11 @@ while not finished and not game_over:
         award.update()
         if developer_mode:
             map.draw()
-            interface.draw_operating_values()
         interface.draw_factor()
         all_sprites.draw(screen)
         interface.draw_score()
         interface.draw_highscore()
-        interface.draw_health()
-        interface.draw_level()
+        interface.draw_operating_values()
 
     # Цикл событий
     for event in pygame.event.get():
@@ -950,28 +547,8 @@ while not finished and not game_over:
                 pause = 1
             else:
                 pause = 0
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_u:
-            for k in range(28):
-                for m in range(31):
-                    if map.number_map[m, k] in (0, 4):
-                        map.number_map[m, k] = 3
 
     pygame.display.update()
-
-# Вывод экрана окончания игры
-while not finished and game_over:
-    clock.tick(FPS)
-    show_end_screen(screen)
-    pygame.display.update()
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
-            finished = True
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
-            if developer_mode == 0:
-                developer_mode = 1
-            else:
-                developer_mode = 0
 
 score.close()
 pygame.quit()
