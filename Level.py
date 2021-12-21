@@ -1,5 +1,6 @@
 from Data import *
 import pygame
+from final_screen import end_screen_loop
 
 
 def circle(screen, clock, all_sprites, interface, map, score, Fruit, pacman, award):
@@ -39,6 +40,9 @@ def circle(screen, clock, all_sprites, interface, map, score, Fruit, pacman, awa
             all_sprites.draw(screen)
             interface.draw_score(award)
             interface.draw_highscore(score, award)
+
+            # Определяем необходимость завершить игру и показать финальный экран
+            finished = end_screen_loop(screen, award, pacman, all_sprites)
 
         # Цикл событий
         for event in pygame.event.get():
